@@ -61,16 +61,14 @@ class MainFragment : Fragment() {
 
         viewModel = ViewModelProvider(this).get(MainViewModel::class.java)
 
-        binding.viewFileLayout.layoutTransition?.enableTransitionType(LayoutTransition.CHANGING)
-
         if (hasPermissions(context, PERMISSIONS)) {
-            checkIfViewable()
+            setDownloadButtonClickListener()
         } else {
             requestPermissions(PERMISSIONS.toTypedArray(), PERMISSION_REQUEST_CODE)
         }
     }
 
-    private fun checkIfViewable() {
+    private fun setDownloadButtonClickListener() {
         val folder = context?.getExternalFilesDir(Environment.DIRECTORY_DOWNLOADS)
         val fileName = "kitten_in_a_cup.png"
         val file = File(folder, fileName)
@@ -95,7 +93,6 @@ class MainFragment : Fragment() {
         val ktor = HttpClient(Android)
 
         viewModel.setDownloading(true)
-        binding.viewFileLayout.requestLayout()
         context.contentResolver.openOutputStream(file)?.let { outputStream ->
             CoroutineScope(Dispatchers.IO).launch {
                 ktor.downloadFile(outputStream, url).collect {
@@ -159,7 +156,7 @@ class MainFragment : Fragment() {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
 
         if (requestCode == PERMISSION_REQUEST_CODE && hasPermissions(context, PERMISSIONS)) {
-            checkIfViewable()
+            setDownloadButtonClickListener()
         }
     }
 
